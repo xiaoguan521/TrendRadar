@@ -8,13 +8,7 @@ ENV SUPERCRONIC_VERSION=v0.2.34
 
 RUN set -ex && \
     apt-get update && \
-    # 添加 locales 包
-    apt-get install -y --no-install-recommends curl ca-certificates locales && \
-    # 配置中文 locale
-    sed -i -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
-    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen && \
-    # 下载 supercronic（只支持 amd64 和 arm64）
+    apt-get install -y --no-install-recommends curl ca-certificates && \
     case ${TARGETARCH} in \
     amd64) \
     export SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_VERSION}/supercronic-linux-amd64; \
@@ -27,7 +21,7 @@ RUN set -ex && \
     export SUPERCRONIC=supercronic-linux-arm64; \
     ;; \
     *) \
-    echo "Unsupported architecture: ${TARGETARCH}. Only amd64 and arm64 are supported."; \
+    echo "Unsupported architecture: ${TARGETARCH}"; \
     exit 1; \
     ;; \
     esac && \
@@ -71,13 +65,8 @@ RUN sed -i 's/\r$//' /entrypoint.sh.tmp && \
     chmod +x manage.py && \
     mkdir -p /app/config /app/output
 
-# 添加 locale 相关环境变量
 ENV PYTHONUNBUFFERED=1 \
     CONFIG_PATH=/app/config/config.yaml \
-    FREQUENCY_WORDS_PATH=/app/config/frequency_words.txt \
-    LANG=zh_CN.UTF-8 \
-    LANGUAGE=zh_CN:zh:en_US:en \
-    LC_ALL=zh_CN.UTF-8 \
-    PYTHONIOENCODING=utf-8
+    FREQUENCY_WORDS_PATH=/app/config/frequency_words.txt
 
 ENTRYPOINT ["/entrypoint.sh"]
